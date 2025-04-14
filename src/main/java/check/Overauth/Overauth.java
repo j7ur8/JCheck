@@ -4,6 +4,7 @@ import burp.api.montoya.core.ByteArray;
 import burp.api.montoya.http.Http;
 import burp.api.montoya.http.handler.HttpRequestToBeSent;
 import burp.api.montoya.http.handler.HttpResponseReceived;
+import burp.api.montoya.http.message.HttpHeader;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.HttpParameter;
 import burp.api.montoya.http.message.params.HttpParameterType;
@@ -47,6 +48,8 @@ public class Overauth {
 
     public static Map<String, ArrayList<HttpParameter>> OverAuthParameterMap = Collections.synchronizedMap(new HashMap<>());
     public static List<HttpParameter> OverAuthLowParameterList = Collections.synchronizedList(new ArrayList<>());
+    public static List<HttpHeader> OverAuthLowHeaderList = Collections.synchronizedList(new ArrayList<>());
+//    public static List<HttpHeader> OverAuthIgnoreHeaderList = Collections.synchronizedList(new ArrayList<>());
     public static List<HttpParameter> OverAuthIgnoreParameterList = Collections.synchronizedList(new ArrayList<>());
 
     public static String authCheckRequest(HttpRequestToBeSent requestToBeSent){
@@ -60,7 +63,7 @@ public class Overauth {
         String highAuth = getOverauthMenuHighauthField().getText();
         String lowAuth  = getOverauthMenuLowauthField().getText();
 
-        if(StringUtil.isBlank(highAuth) && OverAuthLowParameterList.size()==0){
+        if(StringUtil.isBlank(highAuth) && OverAuthLowParameterList.size()==0 && OverAuthLowHeaderList.size()==0){
             return "";
         }
 
@@ -93,9 +96,10 @@ public class Overauth {
         String RequestPath   = BurpAPI.utilities().urlUtils().decode(requestToBeSent.path());
         String RequestTime   = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
 
-        HttpRequest LowAuthRequest = HttpRequest.httpRequest(requestToBeSent.withUpdatedParameters(OverAuthLowParameterList).toString().replace(highAuth,lowAuth)).withService(requestToBeSent.httpService());
 
-        HttpRequest UnAuthRequest = HttpRequest.httpRequest(requestToBeSent.withRemovedParameters(OverAuthLowParameterList).toString().replace(highAuth,"")).withService(requestToBeSent.httpService());
+        HttpRequest LowAuthRequest = HttpRequest.httpRequest(requestToBeSent.withUpdatedParameters(OverAuthLowParameterList).withUpdatedHeaders(OverAuthLowHeaderList).toString().replace(highAuth,lowAuth)).withService(requestToBeSent.httpService()) ;
+
+        HttpRequest UnAuthRequest = HttpRequest.httpRequest(requestToBeSent.withRemovedParameters(OverAuthLowParameterList).withRemovedHeaders(OverAuthLowHeaderList).toString().replace(highAuth,"")).withService(requestToBeSent.httpService());
 
         Map<String, String> rowMap = new HashMap<>(){
             {

@@ -56,7 +56,15 @@ public class JOverauthContextMenuItemActionListener implements ActionListener {
                     Overauth.OverAuthIgnoreParameterList.add(parameter);
                 }
             }
+        }
+        for(HttpHeader httpHeader:request.headers()){
+            String headerName = httpHeader.name();
+            if (e.getActionCommand().equals("SetLowAuth")) {
+                if (headerName.equals(selectValue)) {
+                    Overauth.OverAuthLowHeaderList.add(httpHeader);
+                }
 
+            }
         }
     }
 }
