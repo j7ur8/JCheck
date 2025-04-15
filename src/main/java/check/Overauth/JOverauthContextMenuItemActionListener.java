@@ -30,8 +30,12 @@ public class JOverauthContextMenuItemActionListener implements ActionListener {
         if(e.getActionCommand().equals("BatchCheck")){
             new Thread(()->{
                 for(HttpRequestResponse httpRequestResponse : event.selectedRequestResponses()){
-                    HttpRequest httpRequest = httpRequestResponse.request().withHeader(HttpHeader.httpHeader("BatchCheck","1"));
-                    BurpAPI.http().sendRequest(httpRequest);
+                    if(httpRequestResponse.request().httpService().host().contains(Overauth.getOverauthMenuHostField().getText())){
+
+                        HttpRequest httpRequest = httpRequestResponse.request().withHeader(HttpHeader.httpHeader("BatchCheck","1"));
+                        BurpAPI.http().sendRequest(httpRequest);
+                        BurpAPI.logging().logToOutput(httpRequestResponse.request().url());
+                    }
                 }
             }).start();
             return;

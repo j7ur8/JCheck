@@ -39,6 +39,7 @@ public class Overauth {
     public static boolean OverauthCheck = false;
 
     public static String[] Headers = {"#","Tool","Method","Host","Path","Code","Length","RequestTime","ResponseTime","LowAuth","UnAuth"};
+
     public static Map<String, String> OverAuthPathMap = Collections.synchronizedMap(new HashMap<>());
     public static Map<String, ArrayList<String>> OverAuthPathParameterMap = Collections.synchronizedMap(new HashMap<>());
     public static Map<String, Map<String, String>> OverAuthRowMap = Collections.synchronizedMap(new HashMap<>());
@@ -83,10 +84,10 @@ public class Overauth {
 
         String nowQueryString = Helper.replaceNumeric(queryString,"*Numeric*");
         if(OverAuthRowMap.containsKey(pathWithoutQuery)){
-            BurpAPI.logging().logToOutput("已经检查过："+pathWithoutQuery);
+//            BurpAPI.logging().logToOutput("已经检查过："+pathWithoutQuery);
             return "";
         } else if(OverAuthPathParameterMap.containsKey(pathWithoutQuery) && OverAuthPathParameterMap.get(pathWithoutQuery).contains(nowQueryString)){
-            BurpAPI.logging().logToOutput("已经检查过："+pathWithoutQuery+"?"+nowQueryString);
+//            BurpAPI.logging().logToOutput("已经检查过："+pathWithoutQuery+"?"+nowQueryString);
             return "";
         }
 
@@ -253,6 +254,7 @@ public class Overauth {
     public static void clearOverauthTable(){
         //这里有竞争问题
         OverAuthRowMap = Collections.synchronizedMap(new HashMap<>());
+        OverAuthPathParameterMap = Collections.synchronizedMap(new HashMap<>());
         OverAuthPathMap = Collections.synchronizedMap(new HashMap<>());
         OverAuthResponseMap = Collections.synchronizedMap(new HashMap<>());
         OverAuthRequestMap = Collections.synchronizedMap(new HashMap<>());
@@ -260,6 +262,17 @@ public class Overauth {
         getOverauthLoggerTable().setModel(new DiyJLogTable.TableModelExample(Overauth.Headers, Overauth.OverAuthRowMap, Overauth.OverAuthPathMap));
         OverAuthLowParameterList = Collections.synchronizedList(new ArrayList<>());
         RequestId = -1;
+        OverAuthLowHeaderList = Collections.synchronizedList(new ArrayList<>());
+        OverAuthIgnoreParameterList =  Collections.synchronizedList(new ArrayList<>());
+        OverauthAuthHighauthRequestEditor.setRequest(null);
+        OverauthAuthLowauthRequestEditor.setRequest(null);
+        OverauthAuthUnauthRequestEditor.setRequest(null);
+
+        OverauthAuthHighauthResponseEditor.setResponse(null);
+        OverauthAuthLowauthResponseEditor.setResponse(null);
+        OverauthAuthUnauthResponseEditor.setResponse(null);
+
+        Overauth.getOverauthParameterList().removeAllString();
     }
 
     public static void exportVulData(){
